@@ -9,6 +9,10 @@ export class Room {
     private users = new Map<string, WebSocket>();
     messages : Message[] = [];
 
+    checkUsernameAvailability(username : string) {
+        return this.users.has(username);
+    }
+
     addUser(username : string, socket : WebSocket) {
         this.users.set(username, socket);
     }
@@ -32,6 +36,14 @@ export class Room {
 
     getUsers() {
         return this.users;
+    }
+
+    getRoomSize() {
+        return this.users.size;
+    }
+
+    isRoomEmpty() {
+        return this.users.size == 0;
     }
 
 }

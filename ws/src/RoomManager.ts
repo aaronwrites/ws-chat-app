@@ -16,6 +16,6 @@ export class RoomManager {
     }
 
     deleteRoom(roomId : string) {
-        this.rooms.delete(roomId);
+        return this.rooms.delete(roomId);
     }
 }
