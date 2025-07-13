@@ -1,16 +1,15 @@
+import { WebSocket } from "ws";
+
 type Message = {
-    type: string,
-    payload: {
-        data: string
-    }
+   message: string
 }
 
 export class Room {
     private users = new Map<string, WebSocket>();
-    messages : Message[] = [];
+    private messages : Message[] = [];
 
     checkUsernameAvailability(username : string) {
-        return this.users.has(username);
+        return !this.users.has(username);
     }
 
     addUser(username : string, socket : WebSocket) {
@@ -32,6 +31,10 @@ export class Room {
                 socket.send(payload);
             }
         }
+    }
+
+    getMessages() {
+        return this.messages;
     }
 
     getUsers() {

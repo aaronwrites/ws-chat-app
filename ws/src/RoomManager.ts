@@ -5,17 +5,17 @@ export class RoomManager {
     private rooms = new Map<string, Room>();
 
     createRoom() {
-        const roomId = randomBytes(3).toString('hex').toUpperCase();
+        const roomCode = randomBytes(3).toString('hex').toUpperCase();
         const room = new Room();
-        this.rooms.set(roomId, room);
-        return room;
+        this.rooms.set(roomCode, room);
+        return roomCode;
     }
 
-    getRoom(roomId : string) {
-        return this.rooms.get(roomId);
+    getRoom(roomCode : string) {
+        return this.rooms.get(roomCode);
     }
 
-    deleteRoom(roomId : string) {
-        return this.rooms.delete(roomId);
+    deleteRoom(roomCode : string) {
+        return this.rooms.delete(roomCode);
     }
 }
