@@ -35,6 +35,15 @@ wss.on("connection", (socket) => {
                         return;
                     }
 
+                    if(!userName || !roomCode) {
+                        socket.send(JSON.stringify({
+                            type: "error",
+                            payload: {
+                                message: "No username or room code found"
+                            }
+                        }))
+                    }
+
                     if(room.checkUsernameAvailability(userName)) {
                         // username available
                         currentUser = userName;
@@ -59,6 +68,16 @@ wss.on("connection", (socket) => {
                     const { userName, roomCode } = payload;
                     const room = roomManager.getRoom(roomCode);
                     if(!room) return;
+
+                    if(!userName || !roomCode) {
+                        socket.send(JSON.stringify({
+                            type: "error",
+                            payload: {
+                                message: "No username or room code found"
+                            }
+                        }))
+                    }
+                    
                     const message = {
                         sender: userName,
                         content: payload.message,
