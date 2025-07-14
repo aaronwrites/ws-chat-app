@@ -6,6 +6,7 @@ const roomManager = new RoomManager();
 
 wss.on("connection", (socket) => {
     let currentRoomCode : string | null = null;
+    let currentUser : string | null = null;
 
     socket.on("message", (message) => {
         try {
@@ -35,13 +36,15 @@ wss.on("connection", (socket) => {
                     }
 
                     if(room.checkUsernameAvailability(userName)) {
-                        // Username available
+                        // username available
+                        currentUser = userName;
                         room.addUser(userName, socket);
                         currentRoomCode = roomCode;
                         socket.send(JSON.stringify({
                             type: "room-joined",
                             payload: { roomCode, messages: room.getMessages() }
                         }))
+                        room.broadcast("user-joined", { userName, roomSize : room.getUsers().size })
                     }
                     else {
                         socket.send(JSON.stringify({
@@ -53,11 +56,16 @@ wss.on("connection", (socket) => {
                 }
 
                 case "send-message": {
-                    const { userName, roomCode, message } = payload;
+                    const { userName, roomCode } = payload;
                     const room = roomManager.getRoom(roomCode);
                     if(!room) return;
+                    const message = {
+                        sender: userName,
+                        content: payload.message,
+                        timestamp: new Date()
+                    }
                     room.storeMessage(message);
-                    room.broadcast(message);
+                    room.broadcast("new-message", message);
                     break;
                 }
             }
@@ -74,6 +82,12 @@ wss.on("connection", (socket) => {
     })
 
     socket.on("close", () => {
-      console.log("User Disconnected")
+      if(currentRoomCode && currentUser) {
+        const room = roomManager.getRoom(currentRoomCode);
+        if(!room) return;
+        room.removeUser(currentUser);
+        room.broadcast("user-left", { userName: currentUser, roomSize : room.getUsers().size })
+        if(room.isRoomEmpty()) roomManager.deleteRoom(currentRoomCode)
+      }
     })
 })

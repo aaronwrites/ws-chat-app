@@ -1,7 +1,9 @@
 import { WebSocket } from "ws";
 
 type Message = {
-   message: string
+    sender: string,
+    content: string,
+    timestamp: Date
 }
 
 export class Room {
@@ -24,8 +26,13 @@ export class Room {
         this.messages.push(message);
     }
 
-    broadcast(message : Message) {
-        const payload = JSON.stringify(message);
+    broadcast(type : string, data : Message | { userName : string, roomSize: number }) {
+        const payload = JSON.stringify({
+            type,
+            payload: {
+                data
+            }
+        });
         for(const [, socket] of this.users) {
             if(socket.readyState == WebSocket.OPEN) {
                 socket.send(payload);
@@ -39,10 +46,6 @@ export class Room {
 
     getUsers() {
         return this.users;
-    }
-
-    getRoomSize() {
-        return this.users.size;
     }
 
     isRoomEmpty() {
