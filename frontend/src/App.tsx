@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button"
 import { useState } from "react"
 import useWebSocket from "./hooks/useWebSocket";
 import Messages from "./components/Messages";
+import type { StoCMessage } from "./types/message";
 
 function App() {
   const socket = useWebSocket("ws://localhost:8080")
@@ -9,6 +10,9 @@ function App() {
   const [roomCode, setroomCode] = useState<string>("");
   const [userName, setuserName] = useState<string>("aaron");
   const [connected, setConnected] = useState(false);
+
+  const messageHandler = (msg : StoCMessage) => {
+  }
 
   const dummyMessages = [
   {
