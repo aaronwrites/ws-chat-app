@@ -1,4 +1,4 @@
-import type { StoCMessage } from "@/types/message";
+import type { Message, StoCMessage } from "@/types/message";
 import { useEffect, useRef } from "react";
 
 type MessageHandler = (msg : StoCMessage) => void;
@@ -30,5 +30,19 @@ export default function useWebSocket(url : string, messageHandler : MessageHandl
         return () => socket.close();
     }, [url])
 
-    return socketRef;
+    type CtoSPayload = 
+  | { roomCode: string; userName: string }
+  | { roomCode: string; userName: string; message: Message };
+
+
+    const send = (type : string, payload? : CtoSPayload) => {
+        if(socketRef.current?.readyState === WebSocket.OPEN) {
+            socketRef.current.send(JSON.stringify({
+                type,
+                payload
+            }))
+        }
+    }
+
+    return send;
 }

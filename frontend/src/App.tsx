@@ -7,6 +7,7 @@ import type { Message, StoCMessage } from "./types/message";
 function App() {
   const [roomCode, setroomCode] = useState<string>("");
   const [userName, setuserName] = useState<string>("aaron");
+  const [message, setMessage] = useState<string>("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [connected, setConnected] = useState(false);
 
@@ -35,40 +36,24 @@ function App() {
     }
   }
 
-  const socket = useWebSocket("ws://localhost:8080", messageHandler);
+  const send = useWebSocket("ws://localhost:8080", messageHandler);
 
-  const dummyMessages = [
-  {
-    sender: "aaron",
-    content: "Hey everyone 👋",
-    timestamp: new Date("2025-07-14T10:00:00")
-  },
-  {
-    sender: "alice",
-    content: "Hi Aaron! How's it going?",
-    timestamp: new Date("2025-07-14T10:01:15")
-  },
-  {
-    sender: "aaron",
-    content: "All good! Just setting up the chat app 🔧",
-    timestamp: new Date("2025-07-14T10:01:45")
-  },
-  {
-    sender: "rohit",
-    content: "Nice! Are we deploying it soon?",
-    timestamp: new Date("2025-07-14T10:02:10")
-  },
-  {
-    sender: "aaron",
-    content: "Hopefully today 🚀",
-    timestamp: new Date("2025-07-14T10:02:30")
-  },
-  {
-    sender: "alice",
-    content: "Can't wait to test it out!",
-    timestamp: new Date("2025-07-14T10:02:45")
-  }
-];
+    const createRoom = () => {
+      send("create-room")
+    }
+
+    const joinRoom = () => {
+      send("join-room", {roomCode, userName});
+    }
+
+    const sendMessage = () => {
+      const msg : Message = {
+        sender: userName,
+        content: message,
+        timestamp: new Date().toISOString()
+      }
+      send("send-message", {roomCode, userName, message : msg})
+    }
 
 
 
@@ -77,11 +62,22 @@ function App() {
       <div className="container mx-auto text-white max-w-2xl border border-amber-200 p-4">
         <h1 className="font-bold text-4xl">{connected ? "Chats" : "Real Time Chat Rooms"}</h1>
         <div className="mt-10">
+
+          { !connected &&
+            <>
+            <Button onClick={createRoom}>Create a room</Button>
+          <Button onClick={joinRoom}>Join a room</Button>
+          </>
+          }
+
+
           {/* Messages go here */}
-          <div className="overflow-y-auto border border-cyan-300 rounded-lg p-4 space-y-2">
-            <Messages messages={dummyMessages} userName="aaron" />
-          </div>
-          <input type="text" placeholder="Type your message..." className="border border-gray-400 rounded-md py-1 px-2 w-full mt-2" />
+          {connected && <div>
+            <div className="overflow-y-auto border border-cyan-300 rounded-lg p-4 space-y-2">
+              <Messages messages={messages} userName={userName} />
+            </div>
+            <input type="text" placeholder="Type your message..." className="border border-gray-400 rounded-md py-1 px-2 w-full mt-2" />
+          </div>}
         </div>
       </div>
     </div>

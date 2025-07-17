@@ -41,5 +41,5 @@ export type CtoSMessage = {
 export type Message = {
     sender: string,
     content: string,
-    timestamp: Date,
+    timestamp: string,
 }
