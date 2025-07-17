@@ -2,17 +2,40 @@ import { Button } from "@/components/ui/button"
 import { useState } from "react"
 import useWebSocket from "./hooks/useWebSocket";
 import Messages from "./components/Messages";
-import type { StoCMessage } from "./types/message";
+import type { Message, StoCMessage } from "./types/message";
 
 function App() {
-  const socket = useWebSocket("ws://localhost:8080")
-
   const [roomCode, setroomCode] = useState<string>("");
   const [userName, setuserName] = useState<string>("aaron");
+  const [messages, setMessages] = useState<Message[]>([]);
   const [connected, setConnected] = useState(false);
 
   const messageHandler = (msg : StoCMessage) => {
+    const { type, payload } = msg;
+    switch(type) {
+      case "room-created": {
+        setroomCode(payload.roomCode);
+        break;
+      }
+      case "room-joined": {
+        const { roomCode, messages } = payload;
+        setroomCode(roomCode);
+        setMessages(messages);
+        setConnected(true);
+        break;
+      }
+      case "new-message": {
+        const { data } = payload;
+        setMessages((prev) => [...prev, data]);
+        break;
+      }
+      case "error": {
+        console.error(payload.message);
+      }
+    }
   }
+
+  const socket = useWebSocket("ws://localhost:8080", messageHandler);
 
   const dummyMessages = [
   {
