@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import useWebSocket from "./hooks/useWebSocket";
 import Messages from "./components/Messages";
 import type { Message, StoCMessage } from "./types/message";
@@ -8,7 +8,7 @@ import { Input } from "./components/ui/input";
 function App() {
     const [roomCode, setroomCode] = useState<string>("");
     const [userName, setuserName] = useState<string>("");
-    const msgRef = useRef<HTMLInputElement>(null);
+    const [message, setMessage] = useState<string>("");
     const [messages, setMessages] = useState<Message[]>([]);
     const [connected, setConnected] = useState(false);
 
@@ -48,14 +48,15 @@ function App() {
         send("join-room", { roomCode, userName });
     };
 
-    const sendMessage = () => {
-        if (!msgRef.current?.value) return;
+    const sendMessage = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        if (!message) return;
         send("send-message", {
             roomCode,
             userName,
-            message: msgRef.current?.value,
+            message,
         });
-        msgRef.current.value = "";
+        setMessage("");
     };
 
     console.log(messages);
@@ -72,13 +73,23 @@ function App() {
                                 <Input
                                     type="text"
                                     placeholder="Enter your display name"
+                                    value={userName}
+                                    onChange={(e) =>
+                                        setuserName(e.target.value)
+                                    }
                                 />
                                 <div className="flex w-full max-w-sm items-center gap-2">
                                     <Input
                                         type="text"
                                         placeholder="Enter the Room Code"
+                                        value={roomCode}
+                                        onChange={(e) =>
+                                            setroomCode(e.target.value)
+                                        }
                                     />
-                                    <Button type="submit">Join Room</Button>
+                                    <Button type="submit" onClick={joinRoom}>
+                                        Join Room
+                                    </Button>
                                 </div>
                                 <Button onClick={createRoom} className="w-full">
                                     Create a room
@@ -86,6 +97,12 @@ function App() {
                             </div>
                         ) : (
                             <div>
+                                <p>
+                                    <span className="font-semibold">
+                                        Room Code:
+                                    </span>{" "}
+                                    {roomCode}{" "}
+                                </p>
                                 <div className="overflow-y-auto rounded-lg p-4 space-y-2">
                                     <Messages
                                         messages={messages}
@@ -93,12 +110,17 @@ function App() {
                                     />
                                 </div>
                                 <div className="flex gap-2 items-center">
-                                    <Input
-                                        type="text"
-                                        ref={msgRef}
-                                        placeholder="Type your message...."
-                                    />
-                                    <Button onClick={sendMessage}>Send</Button>
+                                    <form onSubmit={sendMessage}>
+                                        <Input
+                                            type="text"
+                                            value={message}
+                                            onChange={(e) =>
+                                                setMessage(e.target.value)
+                                            }
+                                            placeholder="Type your message...."
+                                        />
+                                        <Button>Send</Button>
+                                    </form>
                                 </div>
                             </div>
                         )}
