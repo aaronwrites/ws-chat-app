@@ -7,43 +7,44 @@ const Messages = ({
     messages: Message[];
     userName: string;
 }) => {
+    if (messages.length === 0) {
+        return (
+            <div className="text-muted-foreground text-center text-sm">
+                It's quiet here...
+            </div>
+        );
+    }
+
     return (
-        <div className="overflow-scroll max-h-64">
-            {messages.length > 0 ? (
-                messages.map((message, index) => {
-                    return (
-                        <div
-                            className={`flex flex-col ${
-                                message.sender == userName
-                                    ? "items-end"
-                                    : "items-start"
-                            } space-y-2`}
-                            key={index}
-                        >
-                            <div className="text-xs text-muted-foreground">
-                                {message.sender}
-                            </div>
-                            <div
-                                className={`inline-block rounded-lg px-3 py-1.5 break-words ${
-                                    message.sender === userName
-                                        ? "bg-primary text-primary-foreground"
-                                        : "bg-blue-600"
-                                }`}
-                            >
-                                {message.content}
-                            </div>
-                            <div className="text-xs text-muted-foreground mb-0.5">
-                                {new Date(message.timestamp).toLocaleString()}
-                            </div>
+        <>
+            {messages.map((message, index) => {
+                const isOwn = message.sender === userName;
+                return (
+                    <div
+                        key={index}
+                        className={`flex flex-col ${
+                            isOwn ? "items-end" : "items-start"
+                        }`}
+                    >
+                        <div className="text-xs text-muted-foreground mb-0.5">
+                            {message.sender}
                         </div>
-                    );
-                })
-            ) : (
-                <div className="text-xl text-muted-foreground">
-                    It's quiet here
-                </div>
-            )}
-        </div>
+                        <div
+                            className={`px-3 py-2 rounded-lg max-w-xs break-words ${
+                                isOwn
+                                    ? "bg-primary text-primary-foreground"
+                                    : "bg-blue-600 text-white"
+                            }`}
+                        >
+                            {message.content}
+                        </div>
+                        <div className="text-[10px] text-muted-foreground mt-0.5">
+                            {new Date(message.timestamp).toLocaleTimeString()}
+                        </div>
+                    </div>
+                );
+            })}
+        </>
     );
 };
 

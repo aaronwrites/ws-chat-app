@@ -65,7 +65,7 @@ wss.on("connection", (socket) => {
                 }
 
                 case "send-message": {
-                    const { userName, roomCode } = payload;
+                    const { userName, roomCode, message : content } = payload;
                     const room = roomManager.getRoom(roomCode);
                     if(!room) return;
 
@@ -80,7 +80,7 @@ wss.on("connection", (socket) => {
                     
                     const message = {
                         sender: userName,
-                        content: payload.message,
+                        content,
                         timestamp: new Date()
                     }
                     room.storeMessage(message);

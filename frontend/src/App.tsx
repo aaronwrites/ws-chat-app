@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import useWebSocket from "./hooks/useWebSocket";
 import Messages from "./components/Messages";
 import type { Message, StoCMessage } from "./types/message";
@@ -11,6 +11,11 @@ function App() {
     const [message, setMessage] = useState<string>("");
     const [messages, setMessages] = useState<Message[]>([]);
     const [connected, setConnected] = useState(false);
+    const messageEndRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, [messages]);
 
     const messageHandler = (msg: StoCMessage) => {
         const { type, payload } = msg;
@@ -58,73 +63,67 @@ function App() {
         });
         setMessage("");
     };
-
-    console.log(messages);
     return (
-        <div className="h-screen bg-black w-full">
-            <div className="container mx-auto text-white max-w-2xl h-screen p-4 flex items-center justify-center">
-                <div>
-                    <h1 className="font-bold text-4xl">
-                        {connected ? "Chats" : "Real Time Chat Rooms"}
-                    </h1>
-                    <div className="mt-10">
-                        {!connected ? (
-                            <div className="space-y-4">
+        <div className="h-screen w-full bg-black text-white flex items-center justify-center">
+            <div className="w-full max-w-2xl h-full p-4">
+                <h1 className="text-4xl font-bold text-center">
+                    {connected ? "Chats" : "Real Time Chat Rooms"}
+                </h1>
+
+                <div className="mt-10 h-[calc(100%-6rem)] flex flex-col">
+                    {!connected ? (
+                        <div className="space-y-4">
+                            <Input
+                                type="text"
+                                placeholder="Enter your display name"
+                                value={userName}
+                                onChange={(e) => setuserName(e.target.value)}
+                            />
+                            <div className="flex items-center gap-2">
                                 <Input
                                     type="text"
-                                    placeholder="Enter your display name"
-                                    value={userName}
+                                    placeholder="Enter the Room Code"
+                                    value={roomCode}
                                     onChange={(e) =>
-                                        setuserName(e.target.value)
+                                        setroomCode(e.target.value)
                                     }
                                 />
-                                <div className="flex w-full max-w-sm items-center gap-2">
-                                    <Input
-                                        type="text"
-                                        placeholder="Enter the Room Code"
-                                        value={roomCode}
-                                        onChange={(e) =>
-                                            setroomCode(e.target.value)
-                                        }
-                                    />
-                                    <Button type="submit" onClick={joinRoom}>
-                                        Join Room
-                                    </Button>
-                                </div>
-                                <Button onClick={createRoom} className="w-full">
-                                    Create a room
-                                </Button>
+                                <Button onClick={joinRoom}>Join Room</Button>
                             </div>
-                        ) : (
-                            <div>
-                                <p>
-                                    <span className="font-semibold">
-                                        Room Code:
-                                    </span>{" "}
-                                    {roomCode}{" "}
-                                </p>
-                                <div className="overflow-y-auto rounded-lg p-4 space-y-2">
-                                    <Messages
-                                        messages={messages}
-                                        userName={userName}
-                                    />
-                                </div>
-                                <div className="flex gap-2 items-center">
-                                    <form onSubmit={sendMessage}>
-                                        <Input
-                                            type="text"
-                                            value={message}
-                                            onChange={(e) =>
-                                                setMessage(e.target.value)
-                                            }
-                                            placeholder="Type your message...."
-                                        />
-                                        <Button>Send</Button>
-                                    </form>
-                                </div>
+                            <Button className="w-full" onClick={createRoom}>
+                                Create a Room
+                            </Button>
+                        </div>
+                    ) : (
+                        <div className="flex flex-col h-full">
+                            <div className="mb-2">
+                                <span className="font-semibold">
+                                    Room Code:
+                                </span>{" "}
+                                {roomCode}
                             </div>
-                        )}
-                    </div>
+
+                            <div className="flex-1 overflow-y-auto border rounded-lg p-3 bg-zinc-900 space-y-2">
+                                <Messages messages={messages} userName={userName} />
+                                <div ref={messageEndRef} />
+                            </div>
+
+                            <form
+                                onSubmit={sendMessage}
+                                className="flex gap-2 mt-3"
+                            >
+                                <Input
+                                    type="text"
+                                    placeholder="Type your message..."
+                                    value={message}
+                                    onChange={(e) =>
+                                        setMessage(e.target.value)
+                                    }
+                                />
+                                <Button type="submit">Send</Button>
+                            </form>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
