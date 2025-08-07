@@ -4,6 +4,7 @@ import useWebSocket from "./hooks/useWebSocket";
 import Messages from "./components/Messages";
 import type { Message, StoCMessage } from "./types/message";
 import { Input } from "./components/ui/input";
+import { ModeToggle } from "./components/ui/mode-toggle";
 
 function App() {
     const [roomCode, setroomCode] = useState<string>("");
@@ -64,13 +65,14 @@ function App() {
         setMessage("");
     };
     return (
-        <div className="h-screen w-full bg-black text-white flex items-center justify-center">
-            <div className="w-full max-w-2xl h-full p-4">
+        <div className="h-screen w-full flex flex-col justify-center items-center">
+            <div className="w-full max-w-2xl p-4">
+                <ModeToggle></ModeToggle>
                 <h1 className="text-4xl font-bold text-center">
                     {connected ? "Chats" : "Real Time Chat Rooms"}
                 </h1>
 
-                <div className="mt-10 h-[calc(100%-6rem)] flex flex-col">
+                <div className="mt-10 flex flex-col">
                     {!connected ? (
                         <div className="space-y-4">
                             <Input
@@ -96,15 +98,20 @@ function App() {
                         </div>
                     ) : (
                         <div className="flex flex-col h-full">
-                            <div className="mb-2">
-                                <span className="font-semibold">
+                            <div className="mb-2 flex flex-col items-center justify-center dark:bg-neutral-900 bg-slate-100 p-4 rounded-lg">
+                                <span className="text-lg inline-block">
                                     Room Code:
-                                </span>{" "}
-                                {roomCode}
+                                </span>
+                                <span className="inline-block text-xl font-bold">
+                                    {roomCode}
+                                </span>
                             </div>
 
-                            <div className="flex-1 overflow-y-auto border rounded-lg p-3 bg-zinc-900 space-y-2">
-                                <Messages messages={messages} userName={userName} />
+                            <div className="flex-1 max-h-[600px] min-h-80 overflow-y-scroll border rounded-lg p-3 dark:bg-zinc-900 bg-slate-100 space-y-2">
+                                <Messages
+                                    messages={messages}
+                                    userName={userName}
+                                />
                                 <div ref={messageEndRef} />
                             </div>
 
@@ -116,9 +123,7 @@ function App() {
                                     type="text"
                                     placeholder="Type your message..."
                                     value={message}
-                                    onChange={(e) =>
-                                        setMessage(e.target.value)
-                                    }
+                                    onChange={(e) => setMessage(e.target.value)}
                                 />
                                 <Button type="submit">Send</Button>
                             </form>

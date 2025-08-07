@@ -9,7 +9,7 @@ const Messages = ({
 }) => {
     if (messages.length === 0) {
         return (
-            <div className="text-muted-foreground text-center text-sm">
+            <div className="text-muted-foreground font-semibold text-lg h-52 flex items-center justify-center">
                 It's quiet here...
             </div>
         );
